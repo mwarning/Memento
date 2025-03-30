@@ -1,6 +1,7 @@
 Memento
 =======
-**Memento** is a simple note taking app for Android.
+
+A simple note taking app for Android.
 
 ## Features
 
@@ -9,7 +10,7 @@ Memento
 - Take drawing notes
 - Backup and restore notes
 
-**Download** https://github.com/yaa110/Memento/releases/download/v1.0.0/memento1.apk
+[<img src="fdroid.png" alt="Get it on F-Droid" height="90">](https://f-droid.org/en/packages/github.yaa110.memento/)
 
 ## Dependencies
 
@@ -18,9 +19,6 @@ Memento
 
 ## Screenshots
 
-![Screenshot](https://raw.githubusercontent.com/yaa110/Memento/master/Screenshots/001.png)
-![Screenshot](https://raw.githubusercontent.com/yaa110/Memento/master/Screenshots/002.png)
-![Screenshot](https://raw.githubusercontent.com/yaa110/Memento/master/Screenshots/003.png)
-![Screenshot](https://raw.githubusercontent.com/yaa110/Memento/master/Screenshots/004.png)
-![Screenshot](https://raw.githubusercontent.com/yaa110/Memento/master/Screenshots/005.png)
-![Screenshot](https://raw.githubusercontent.com/yaa110/Memento/master/Screenshots/006.png)
+<p align="center">
+<img src="Screenshots/001.png" width="300"> <img src="Screenshots/002.png" width="300"> <img src="Screenshots/003.png" width="300"> <img src="Screenshots/004.png" width="300"> <img src="Screenshots/005.png" width="300">  <img src="Screenshots/006.png" width="300">
+</p>
