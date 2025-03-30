@@ -1,7 +1,8 @@
 package github.yaa110.memento.fragment;
 
-import android.support.v4.content.ContextCompat;
 import android.view.View;
+
+import androidx.core.content.ContextCompat;
 
 import github.yaa110.memento.R;
 import github.yaa110.memento.fragment.template.NoteFragment;
@@ -38,27 +39,15 @@ public class SimpleNoteFragment extends NoteFragment {
 
 	@Override
 	public void init(View view) {
-		body = (RichEditor) view.findViewById(R.id.editor);
+		body = view.findViewById(R.id.editor);
 		body.setPlaceholder("Note");
 		body.setEditorBackgroundColor(ContextCompat.getColor(getContext(), R.color.bg));
 
-		view.findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				body.setBold();
-			}
-		});
+		view.findViewById(R.id.action_bold).setOnClickListener(v -> body.setBold());
 
-		view.findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				body.setItalic();
-			}
-		});
+		view.findViewById(R.id.action_italic).setOnClickListener(v -> body.setItalic());
 
-		view.findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
-			@Override public void onClick(View v) {
-				body.setUnderline();
-			}
-		});
+		view.findViewById(R.id.action_underline).setOnClickListener(v -> body.setUnderline());
 
 		body.setHtml(note.body);
 	}

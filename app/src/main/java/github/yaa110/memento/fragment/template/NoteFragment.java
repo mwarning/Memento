@@ -3,12 +3,14 @@ package github.yaa110.memento.fragment.template;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
+import androidx.fragment.app.Fragment;
+
+import org.jetbrains.annotations.Nullable;
 
 import github.yaa110.memento.R;
 import github.yaa110.memento.activity.NoteActivity;
@@ -24,7 +26,7 @@ abstract public class NoteFragment extends Fragment {
 
 	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		return inflater.inflate(getLayout(), container, false);
 	}
 
@@ -33,7 +35,7 @@ abstract public class NoteFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 
 		deleteBtn = getActivity().findViewById(R.id.delete_btn);
-		title = (EditText) view.findViewById(R.id.title_txt);
+		title = view.findViewById(R.id.title_txt);
 
 		Intent data = getActivity().getIntent();
 		long noteId = data.getLongExtra(OpenHelper.COLUMN_ID, DatabaseModel.NEW_MODEL_ID);
@@ -55,12 +57,7 @@ abstract public class NoteFragment extends Fragment {
 		} else {
 			activity.setNoteResult(NoteActivity.RESULT_EDIT, false);
 			deleteBtn.setVisibility(View.VISIBLE);
-			deleteBtn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					activity.setNoteResult(NoteActivity.RESULT_DELETE, true);
-				}
-			});
+			deleteBtn.setOnClickListener(view1 -> activity.setNoteResult(NoteActivity.RESULT_DELETE, true));
 		}
 
 		title.setText(note.title);

@@ -59,16 +59,15 @@
         android:layout_height="48dp"
         android:clickable="true"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/ripple_rect" >
+        android:background="@drawable/ripple_rect"
+        android:focusable="true">
 
         <include layout="@layout/splitter" />
 
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:scaleType="center"
@@ -82,9 +81,7 @@
             android:textSize="@dimen/small_text"
             android:text="@string/settings"
             android:textColor="@color/main_text"
-            android:layout_marginLeft="72dp"
             android:layout_marginStart="72dp"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
 
     </RelativeLayout>

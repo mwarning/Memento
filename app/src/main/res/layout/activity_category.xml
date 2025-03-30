@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_height="@dimen/toolbar_height"
         android:layout_width="match_parent"
@@ -19,6 +19,7 @@
             android:layout_width="@dimen/toolbar_height"
             android:layout_height="@dimen/toolbar_height"
             android:layout_gravity="start|top"
+            android:focusable="true"
             app:srcCompat="@drawable/ic_back"
             android:clickable="true"
             android:background="@drawable/ripple_circle"
@@ -30,15 +31,14 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
             android:maxLines="1"
             android:layout_gravity="start|center_vertical"
             android:textColor="@color/white"
             android:textSize="@dimen/large_text" />
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/selection_toolbar"
         android:layout_height="@dimen/toolbar_height"
         android:layout_width="match_parent"
@@ -52,6 +52,7 @@
             android:layout_width="@dimen/toolbar_height"
             android:layout_height="@dimen/toolbar_height"
             android:layout_gravity="start|top"
+            android:focusable="true"
             app:srcCompat="@drawable/ic_back"
             android:clickable="true"
             android:background="@drawable/ripple_circle"
@@ -64,6 +65,7 @@
             android:layout_width="@dimen/toolbar_height"
             android:layout_height="@dimen/toolbar_height"
             android:layout_gravity="end|top"
+            android:focusable="true"
             app:srcCompat="@drawable/ic_delete"
             android:clickable="true"
             android:background="@drawable/ripple_circle"
@@ -75,13 +77,12 @@
             android:id="@+id/selection_counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"
             android:singleLine="true"
             android:layout_gravity="start|center_vertical"
             android:textColor="@color/white"
             android:textSize="@dimen/large_text" />
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/container"

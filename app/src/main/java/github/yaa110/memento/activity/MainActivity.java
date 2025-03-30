@@ -4,21 +4,22 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 
@@ -52,12 +53,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 	private boolean checkForPermission = true;
 
 	public Handler handler = new Handler();
-	public Runnable runnable = new Runnable() {
-		@Override
-		public void run() {
-			exitStatus = false;
-		}
-	};
+	public Runnable runnable = () -> exitStatus = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +72,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 		setupDrawer();
 
 		selectionEdit = findViewById(R.id.selection_edit);
-		selectionEdit.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				fragment.onEditSelected();
-			}
-		});
+		selectionEdit.setOnClickListener(view -> fragment.onEditSelected());
 
 		if (savedInstanceState == null) {
 			fragment = new MainFragment();
@@ -100,19 +91,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 					.positiveText(R.string.request)
 					.negativeText(R.string.cancel)
 					.negativeColor(ContextCompat.getColor(this, R.color.secondary_text))
-					.onPositive(new MaterialDialog.SingleButtonCallback() {
-						@Override
-						public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-							dialog.dismiss();
-							requestPermission();
-						}
+					.onPositive((dialog, which) -> {
+						dialog.dismiss();
+						requestPermission();
 					})
-					.onNegative(new MaterialDialog.SingleButtonCallback() {
-						@Override
-						public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-							dialog.dismiss();
-							displayPermissionError();
-						}
+					.onNegative((dialog, which) -> {
+						dialog.dismiss();
+						displayPermissionError();
 					})
 					.show();
 			}
@@ -146,35 +131,20 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 		// Set date in drawer
 		((TextView) findViewById(R.id.drawer_date)).setText(Formatter.formatDate());
 
-		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		drawerLayout = findViewById(R.id.drawer_layout);
 		drawerHolder = findViewById(R.id.drawer_holder);
-		ListView drawerList = (ListView) findViewById(R.id.drawer_list);
+		ListView drawerList = findViewById(R.id.drawer_list);
 
 		// Navigation menu button
-		findViewById(R.id.nav_btn).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				drawerLayout.openDrawer(GravityCompat.START);
-			}
-		});
+		findViewById(R.id.nav_btn).setOnClickListener(view -> drawerLayout.openDrawer(GravityCompat.START));
 
 		// Settings button
-		findViewById(R.id.settings_btn).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onClickDrawer(Drawer.TYPE_SETTINGS);
-			}
-		});
+		findViewById(R.id.settings_btn).setOnClickListener(view -> onClickDrawer(Drawer.TYPE_SETTINGS));
 
 		// Set adapter of drawer
 		drawerList.setAdapter(new DrawerAdapter(
 			getApplicationContext(),
-			new DrawerAdapter.ClickListener() {
-				@Override
-				public void onClick(int type) {
-					onClickDrawer(type);
-				}
-			}
+				type -> onClickDrawer(type)
 		));
 	}
 
@@ -201,12 +171,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 										.title(R.string.app_name)
 										.content(R.string.about_desc)
 										.positiveText(R.string.ok)
-										.onPositive(new MaterialDialog.SingleButtonCallback() {
-											@Override
-											public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-												dialog.dismiss();
-											}
-										})
+										.onPositive((dialog, which) -> dialog.dismiss())
 										.show();
 									break;
 								case Drawer.TYPE_BACKUP:
@@ -221,12 +186,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 										.title(R.string.settings)
 										.content(R.string.not_implemented)
 										.positiveText(R.string.ok)
-										.onPositive(new MaterialDialog.SingleButtonCallback() {
-											@Override
-											public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-												dialog.dismiss();
-											}
-										})
+										.onPositive((dialog, which) -> dialog.dismiss())
 										.show();
 									break;
 							}
@@ -282,22 +242,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 									}
 								});
 							} catch (final Exception e){
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										new MaterialDialog.Builder(MainActivity.this)
-											.title(R.string.restore_error)
-											.positiveText(R.string.ok)
-											.content(e.getMessage())
-											.onPositive(new MaterialDialog.SingleButtonCallback() {
-												@Override
-												public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-													dialog.dismiss();
-												}
-											})
-											.show();
-									}
-								});
+								runOnUiThread(() -> new MaterialDialog.Builder(MainActivity.this)
+									.title(R.string.restore_error)
+									.positiveText(R.string.ok)
+									.content(e.getMessage())
+									.onPositive((dialog, which) -> dialog.dismiss())
+									.show());
 							} finally {
 								interrupt();
 							}
@@ -311,12 +261,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 						.title(R.string.restore_error)
 						.positiveText(R.string.ok)
 						.content(msg)
-						.onPositive(new MaterialDialog.SingleButtonCallback() {
-							@Override
-							public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-								dialog.dismiss();
-							}
-						})
+						.onPositive((dialog, which) -> dialog.dismiss())
 						.show();
 				}
 			}
@@ -337,22 +282,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 							try {
 								saveBackupFile(path);
 
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										new MaterialDialog.Builder(MainActivity.this)
-											.title(R.string.backup)
-											.positiveText(R.string.ok)
-											.content(getString(R.string.backup_saved, path))
-											.onPositive(new MaterialDialog.SingleButtonCallback() {
-												@Override
-												public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-													dialog.dismiss();
-												}
-											})
-											.show();
-									}
-								});
+								runOnUiThread(() -> new MaterialDialog.Builder(MainActivity.this)
+									.title(R.string.backup)
+									.positiveText(R.string.ok)
+									.content(getString(R.string.backup_saved, path))
+									.onPositive((dialog, which) -> dialog.dismiss())
+									.show());
 							} catch (final Exception e) {
 								runOnUiThread(new Runnable() {
 									@Override
@@ -361,12 +296,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 											.title(R.string.backup_error)
 											.positiveText(R.string.ok)
 											.content(e.getMessage())
-											.onPositive(new MaterialDialog.SingleButtonCallback() {
-												@Override
-												public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-													dialog.dismiss();
-												}
-											})
+											.onPositive((dialog, which) -> dialog.dismiss())
 											.show();
 									}
 								});
@@ -424,19 +354,13 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
 			.negativeText(R.string.request)
 			.positiveText(R.string.continue_anyway)
 			.negativeColor(ContextCompat.getColor(this, R.color.secondary_text))
-			.onPositive(new MaterialDialog.SingleButtonCallback() {
-				@Override
-				public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-					dialog.dismiss();
-					permissionNotGranted = false;
-				}
+			.onPositive((dialog, which) -> {
+				dialog.dismiss();
+				permissionNotGranted = false;
 			})
-			.onNegative(new MaterialDialog.SingleButtonCallback() {
-				@Override
-				public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-					dialog.dismiss();
-					requestPermission();
-				}
+			.onNegative((dialog, which) -> {
+				dialog.dismiss();
+				requestPermission();
 			})
 			.show();
 	}

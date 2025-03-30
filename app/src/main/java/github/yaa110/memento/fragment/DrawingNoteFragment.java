@@ -41,22 +41,16 @@ public class DrawingNoteFragment extends NoteFragment {
 
 	@Override
 	public void init(View view) {
-		canvas = (CanvasView) view.findViewById(R.id.canvas);
+		canvas = view.findViewById(R.id.canvas);
 
-		view.findViewById(R.id.pen_tool).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				canvas.setMode(CanvasView.Mode.DRAW);
-				canvas.setPaintStrokeWidth(3F);
-			}
+		view.findViewById(R.id.pen_tool).setOnClickListener(view1 -> {
+			canvas.setMode(CanvasView.Mode.DRAW);
+			canvas.setPaintStrokeWidth(3F);
 		});
 
-		view.findViewById(R.id.eraser_tool).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				canvas.setMode(CanvasView.Mode.ERASER);
-				canvas.setPaintStrokeWidth(40F);
-			}
+		view.findViewById(R.id.eraser_tool).setOnClickListener(view2 -> {
+			canvas.setMode(CanvasView.Mode.ERASER);
+			canvas.setPaintStrokeWidth(40F);
 		});
 
 		if (!note.body.isEmpty()) {

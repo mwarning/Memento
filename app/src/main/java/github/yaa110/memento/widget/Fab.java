@@ -1,9 +1,10 @@
 package github.yaa110.memento.widget;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 import github.yaa110.memento.App;
 import github.yaa110.memento.R;

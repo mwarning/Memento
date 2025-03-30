@@ -1,16 +1,17 @@
 package github.yaa110.memento.dialog;
 
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.fragment.app.DialogFragment;
 
 import github.yaa110.memento.R;
 import github.yaa110.memento.inner.Animator;
@@ -44,7 +45,7 @@ public class ContentDialog extends DialogFragment {
 		getDialog().setCanceledOnTouchOutside(true);
 
 		View view = inflater.inflate(R.layout.dialog_content, container);
-		content = inflater.inflate(getArguments().getInt("layoutRes"), (MaxHeightScrollView) view.findViewById(R.id.content_holder));
+		content = inflater.inflate(getArguments().getInt("layoutRes"), view.findViewById(R.id.content_holder));
 		return view;
 	}
 
@@ -68,27 +69,21 @@ public class ContentDialog extends DialogFragment {
 		if (positive != -1) {
 			positive_btn.setVisibility(View.VISIBLE);
 			positive_btn.setText(positive);
-			positive_btn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (isWorking) return;
-					listener.onPositive(dialog, content);
-				}
+			positive_btn.setOnClickListener(view1 -> {
+				if (isWorking) return;
+				listener.onPositive(dialog, content);
 			});
 		} else {
 			positive_btn.setVisibility(View.GONE);
 		}
 
-		TextView negative_btn = (TextView) view.findViewById(R.id.negative_btn);
+		TextView negative_btn = view.findViewById(R.id.negative_btn);
 		if (negative != -1) {
 			negative_btn.setVisibility(View.VISIBLE);
 			negative_btn.setText(negative);
-			negative_btn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (isWorking) return;
-					listener.onNegative(dialog, content);
-				}
+			negative_btn.setOnClickListener(view2 -> {
+				if (isWorking) return;
+				listener.onNegative(dialog, content);
 			});
 		} else {
 			negative_btn.setVisibility(View.GONE);
@@ -98,12 +93,9 @@ public class ContentDialog extends DialogFragment {
 		if (neutral != -1) {
 			neutral_btn.setVisibility(View.VISIBLE);
 			neutral_btn.setText(neutral);
-			neutral_btn.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (isWorking) return;
-					listener.onNeutral(dialog, content);
-				}
+			neutral_btn.setOnClickListener(view3 -> {
+				if (isWorking) return;
+				listener.onNeutral(dialog, content);
 			});
 		} else {
 			neutral_btn.setVisibility(View.GONE);

@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_height="@dimen/toolbar_height"
         android:layout_width="match_parent"
@@ -20,6 +20,7 @@
             android:layout_width="@dimen/toolbar_height"
             android:layout_height="@dimen/toolbar_height"
             android:layout_gravity="start|top"
+            android:focusable="true"
             app:srcCompat="@drawable/ic_back"
             android:clickable="true"
             android:background="@drawable/ripple_circle"
@@ -32,6 +33,7 @@
             android:layout_width="@dimen/toolbar_height"
             android:layout_height="@dimen/toolbar_height"
             android:layout_gravity="end|top"
+            android:focusable="true"
             app:srcCompat="@drawable/ic_delete"
             android:clickable="true"
             android:visibility="gone"
@@ -39,7 +41,7 @@
             android:scaleType="center"
             tools:ignore="MissingPrefix"
             android:contentDescription="@string/menu"/>
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/container"

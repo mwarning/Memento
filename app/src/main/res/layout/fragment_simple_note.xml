@@ -16,7 +16,7 @@
         android:layout_height="0px"
         tools:ignore="UselessLeaf" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/text_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -25,12 +25,14 @@
             android:id="@+id/title_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:inputType="text"
             android:textColorHint="@color/hint_text"
             android:textSize="@dimen/medium_text"
             android:textColor="@color/main_text"
             android:hint="@string/title"/>
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -49,6 +51,7 @@
                 android:layout_height="@dimen/tool_size"
                 android:background="@drawable/tool"
                 android:clickable="true"
+                android:focusable="true"
                 android:scaleType="center"
                 android:contentDescription="@string/tool"
                 app:srcCompat="@drawable/ic_bold" />
@@ -59,8 +62,8 @@
                 android:layout_height="@dimen/tool_size"
                 android:background="@drawable/tool"
                 android:contentDescription="@string/tool"
-                android:layout_marginLeft="5dp"
                 android:layout_marginStart="5dp"
+                android:focusable="true"
                 android:scaleType="center"
                 android:clickable="true"
                 app:srcCompat="@drawable/ic_italic" />
@@ -70,10 +73,10 @@
                 android:layout_width="@dimen/tool_size"
                 android:layout_height="@dimen/tool_size"
                 android:background="@drawable/tool"
+                android:focusable="true"
                 android:scaleType="center"
                 android:contentDescription="@string/tool"
                 android:clickable="true"
-                android:layout_marginLeft="5dp"
                 android:layout_marginStart="5dp"
                 app:srcCompat="@drawable/ic_underline" />
 

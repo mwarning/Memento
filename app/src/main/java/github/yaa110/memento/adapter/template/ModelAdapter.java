@@ -1,7 +1,6 @@
 package github.yaa110.memento.adapter.template;
 
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
@@ -30,20 +29,14 @@ abstract public class ModelAdapter<T extends DatabaseModel, VH extends ModelView
 		if (selected.contains(item)) holder.setSelected(true);
 		else holder.setSelected(false);
 
-		holder.holder.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (selected.isEmpty()) listener.onClick(item, items.indexOf(item));
-				else toggleSelection(holder, item);
-			}
+		holder.holder.setOnClickListener(view -> {
+			if (selected.isEmpty()) listener.onClick(item, items.indexOf(item));
+			else toggleSelection(holder, item);
 		});
 
-		holder.holder.setOnLongClickListener(new View.OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View view) {
-				toggleSelection(holder, item);
-				return true;
-			}
+		holder.holder.setOnLongClickListener(view -> {
+			toggleSelection(holder, item);
+			return true;
 		});
 	}
 

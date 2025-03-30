@@ -18,10 +18,10 @@ public class CategoryViewHolder extends ModelViewHolder<Category> {
 
 	public CategoryViewHolder(View itemView) {
 		super(itemView);
-		badge = (TextView) itemView.findViewById(R.id.badge_txt);
-		title = (TextView) itemView.findViewById(R.id.title_txt);
-		counter = (TextView) itemView.findViewById(R.id.counter_txt);
-		date = (TextView) itemView.findViewById(R.id.date_txt);
+		badge = itemView.findViewById(R.id.badge_txt);
+		title = itemView.findViewById(R.id.title_txt);
+		counter = itemView.findViewById(R.id.counter_txt);
+		date = itemView.findViewById(R.id.date_txt);
 	}
 
 	@Override

@@ -16,7 +16,7 @@
         android:layout_height="0px"
         tools:ignore="UselessLeaf" />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/text_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -25,12 +25,14 @@
             android:id="@+id/title_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:autofillHints="none"
+            android:inputType="text"
             android:textColorHint="@color/hint_text"
             android:textSize="@dimen/medium_text"
             android:textColor="@color/main_text"
             android:hint="@string/title"/>
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -42,7 +44,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
             android:layout_marginEnd="10dp"
             android:text="@string/start_drawing"/>
 
@@ -50,6 +51,7 @@
             android:id="@+id/pen_tool"
             android:layout_width="@dimen/tool_size"
             android:layout_height="@dimen/tool_size"
+            android:focusable="true"
             android:scaleType="center"
             android:clickable="true"
             android:background="@drawable/tool"
@@ -60,8 +62,8 @@
             android:id="@+id/eraser_tool"
             android:layout_width="@dimen/tool_size"
             android:layout_height="@dimen/tool_size"
+            android:focusable="true"
             android:scaleType="center"
-            android:layout_marginLeft="5dp"
             android:layout_marginStart="5dp"
             android:clickable="true"
             android:background="@drawable/tool"

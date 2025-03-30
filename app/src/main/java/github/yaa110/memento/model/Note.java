@@ -2,7 +2,6 @@ package github.yaa110.memento.model;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Locale;

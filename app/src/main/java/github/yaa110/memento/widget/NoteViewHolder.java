@@ -19,9 +19,9 @@ public class NoteViewHolder extends ModelViewHolder<Note> {
 
 	public NoteViewHolder(View itemView) {
 		super(itemView);
-		badge = (ImageView) itemView.findViewById(R.id.badge_icon);
-		title = (TextView) itemView.findViewById(R.id.title_txt);
-		date = (TextView) itemView.findViewById(R.id.date_txt);
+		badge = itemView.findViewById(R.id.badge_icon);
+		title = itemView.findViewById(R.id.title_txt);
+		date = itemView.findViewById(R.id.date_txt);
 	}
 
 	@Override

@@ -4,15 +4,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -27,8 +28,10 @@ import github.yaa110.memento.model.Folder;
 import github.yaa110.memento.widget.FixedHeightRecyclerView;
 
 public class ImportDialog extends DialogFragment {
-	@StringRes private int title;
-	@Nullable private String[] extensions;
+	@StringRes
+	private int title;
+	@Nullable
+	private String[] extensions;
 	private String current_path;
 	private ImportListener listener;
 	private ArrayList<Folder> items;
@@ -66,16 +69,11 @@ public class ImportDialog extends DialogFragment {
 			((TextView) view.findViewById(R.id.title_txt)).setText(title);
 			current_path = App.last_path != null ? App.last_path : Environment.getExternalStorageDirectory().getAbsolutePath();
 
-			recyclerView = (FixedHeightRecyclerView) view.findViewById(R.id.recyclerView);
+			recyclerView = view.findViewById(R.id.recyclerView);
 			items = new ArrayList<>();
 			reload();
 
-			view.findViewById(R.id.positive_btn).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					dismiss();
-				}
-			});
+			view.findViewById(R.id.positive_btn).setOnClickListener(view1 -> dismiss());
 		}
 	}
 
@@ -88,27 +86,21 @@ public class ImportDialog extends DialogFragment {
 				File folder = new File(current_path);
 				if (!folder.exists()) folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
 
-				File[] folders = folder.listFiles(new FileFilter() {
-					@Override
-					public boolean accept(File file) {
-						if (extensions == null) return true;
-						if (file.isDirectory()) return true;
+				File[] folders = folder.listFiles(file -> {
+					if (extensions == null) return true;
+					if (file.isDirectory()) return true;
 
-						for (String extension : extensions) {
-							if (file.getName().endsWith(extension)) return true;
-						}
-
-						return false;
+					for (String extension : extensions) {
+						if (file.getName().endsWith(extension)) return true;
 					}
+
+					return false;
 				});
 
-				Arrays.sort(folders, new Comparator<File>() {
-					@Override
-					public int compare(File f1, File f2) {
-						if (f1.isDirectory() && !f2.isDirectory()) return -1;
-						if (!f1.isDirectory() && f2.isDirectory()) return 1;
-						return f1.getName().compareToIgnoreCase(f2.getName());
-					}
+				Arrays.sort(folders, (f1, f2) -> {
+					if (f1.isDirectory() && !f2.isDirectory()) return -1;
+					if (!f1.isDirectory() && f2.isDirectory()) return 1;
+					return f1.getName().compareToIgnoreCase(f2.getName());
 				});
 
 				if (!folder.getAbsolutePath().equals(Environment.getExternalStorageDirectory().getAbsolutePath())) {
@@ -120,30 +112,24 @@ public class ImportDialog extends DialogFragment {
 					items.add(new Folder(file.getName(), file.getAbsolutePath(), false, file.isDirectory()));
 				}
 
-				new Handler(Looper.getMainLooper()).post(new Runnable() {
-					@Override
-					public void run() {
-						if (adapter == null) {
-							adapter = new FolderAdapter(items, new FolderAdapter.ClickListener() {
-								@Override
-								public void onClick(Folder item) {
-									if (item.isDirectory) {
-										current_path = item.path;
-										reload();
-									} else {
-										App.last_path = current_path;
-										App.instance.putPrefs(App.LAST_PATH_KEY, current_path);
-										listener.onSelect(item.path);
-										dismiss();
-									}
-								}
-							});
+				new Handler(Looper.getMainLooper()).post(() -> {
+					if (adapter == null) {
+						adapter = new FolderAdapter(items, item -> {
+							if (item.isDirectory) {
+								current_path = item.path;
+								reload();
+							} else {
+								App.last_path = current_path;
+								App.instance.putPrefs(App.LAST_PATH_KEY, current_path);
+								listener.onSelect(item.path);
+								dismiss();
+							}
+						});
 
-							recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-							recyclerView.setAdapter(adapter);
-						} else {
-							adapter.notifyDataSetChanged();
-						}
+						recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+						recyclerView.setAdapter(adapter);
+					} else {
+						adapter.notifyDataSetChanged();
 					}
 				});
 

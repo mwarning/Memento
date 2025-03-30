@@ -1,12 +1,13 @@
 package github.yaa110.memento.fragment;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -30,7 +31,7 @@ public class MainFragment extends RecyclerFragment<Category, CategoryAdapter> {
 			intent.putExtra("position", position);
 			intent.putExtra(OpenHelper.COLUMN_ID, item.id);
 			intent.putExtra(OpenHelper.COLUMN_TITLE, item.title);
-			intent.putExtra(OpenHelper.COLUMN_THEME, ((Category) item).theme);
+			intent.putExtra(OpenHelper.COLUMN_THEME, item.theme);
 			startActivityForResult(intent, CategoryActivity.REQUEST_CODE);
 		}
 
@@ -83,63 +84,52 @@ public class MainFragment extends RecyclerFragment<Category, CategoryAdapter> {
 			.positiveText(positiveText)
 			.negativeText(R.string.cancel)
 			.negativeColor(ContextCompat.getColor(getContext(), R.color.secondary_text))
-			.onPositive(new MaterialDialog.SingleButtonCallback() {
-				@Override
-				public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-					//noinspection ConstantConditions
-					String inputTitle = ((EditText) dialog.getCustomView().findViewById(R.id.title_txt)).getText().toString();
-					if (inputTitle.isEmpty()) {
-						inputTitle = "Untitled";
-					}
+			.onPositive((dialog1, which) -> {
+				//noinspection ConstantConditions
+				String inputTitle = ((EditText) dialog1.getCustomView().findViewById(R.id.title_txt)).getText().toString();
+				if (inputTitle.isEmpty()) {
+					inputTitle = "Untitled";
+				}
 
-					final Category category = new Category();
-					category.id = categoryId;
+				final Category category = new Category();
+				category.id = categoryId;
 
-					final boolean isEditing = categoryId != DatabaseModel.NEW_MODEL_ID;
+				final boolean isEditing = categoryId != DatabaseModel.NEW_MODEL_ID;
 
-					if (!isEditing) {
-						category.counter = 0;
-						category.type = DatabaseModel.TYPE_CATEGORY;
-						category.createdAt = System.currentTimeMillis();
-						category.isArchived = false;
-					}
+				if (!isEditing) {
+					category.counter = 0;
+					category.type = DatabaseModel.TYPE_CATEGORY;
+					category.createdAt = System.currentTimeMillis();
+					category.isArchived = false;
+				}
 
-					category.title = inputTitle;
-					category.theme = categoryDialogTheme;
+				category.title = inputTitle;
+				category.theme = categoryDialogTheme;
 
-					new Thread() {
-						@Override
-						public void run() {
-							final long id = category.save();
-							if (id != DatabaseModel.NEW_MODEL_ID) {
-								getActivity().runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										if (isEditing) {
-											Category categoryInItems = items.get(position);
-											categoryInItems.theme = category.theme;
-											categoryInItems.title = category.title;
-											refreshItem(position);
-										} else {
-											category.id = id;
-											addItem(category, position);
-										}
-									}
-								});
-							}
-
-							interrupt();
+				new Thread() {
+					@Override
+					public void run() {
+						final long id = category.save();
+						if (id != DatabaseModel.NEW_MODEL_ID) {
+							getActivity().runOnUiThread(() -> {
+								if (isEditing) {
+									Category categoryInItems = items.get(position);
+									categoryInItems.theme = category.theme;
+									categoryInItems.title = category.title;
+									refreshItem(position);
+								} else {
+									category.id = id;
+									addItem(category, position);
+								}
+							});
 						}
-					}.start();
 
-				}
+						interrupt();
+					}
+				}.start();
+
 			})
-			.onNegative(new MaterialDialog.SingleButtonCallback() {
-				@Override
-				public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-					dialog.dismiss();
-				}
-			})
+			.onNegative((dialog2, which) -> dialog2.dismiss())
 			.customView(R.layout.dialog_category, true)
 			.build();
 
@@ -152,76 +142,31 @@ public class MainFragment extends RecyclerFragment<Category, CategoryAdapter> {
 		setCategoryDialogTheme(view, categoryDialogTheme);
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_red).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_RED);
-			}
-		});
+		view.findViewById(R.id.theme_red).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_RED));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_pink).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_PINK);
-			}
-		});
+		view.findViewById(R.id.theme_pink).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_PINK));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_purple).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_PURPLE);
-			}
-		});
+		view.findViewById(R.id.theme_purple).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_PURPLE));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_amber).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_AMBER);
-			}
-		});
+		view.findViewById(R.id.theme_amber).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_AMBER));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_blue).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_BLUE);
-			}
-		});
+		view.findViewById(R.id.theme_blue).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_BLUE));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_cyan).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_CYAN);
-			}
-		});
+		view.findViewById(R.id.theme_cyan).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_CYAN));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_orange).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_ORANGE);
-			}
-		});
+		view.findViewById(R.id.theme_orange).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_ORANGE));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_teal).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_TEAL);
-			}
-		});
+		view.findViewById(R.id.theme_teal).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_TEAL));
 
 		//noinspection ConstantConditions
-		view.findViewById(R.id.theme_green).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setCategoryDialogTheme(view, Category.THEME_GREEN);
-			}
-		});
+		view.findViewById(R.id.theme_green).setOnClickListener(v -> setCategoryDialogTheme(view, Category.THEME_GREEN));
 	}
 
 	private void setCategoryDialogTheme(View view, int theme) {
@@ -236,23 +181,23 @@ public class MainFragment extends RecyclerFragment<Category, CategoryAdapter> {
 	private ImageView getThemeView(View view, int theme) {
 		switch (theme) {
 			case Category.THEME_AMBER:
-				return (ImageView) view.findViewById(R.id.theme_amber);
+				return view.findViewById(R.id.theme_amber);
 			case Category.THEME_BLUE:
-				return (ImageView) view.findViewById(R.id.theme_blue);
+				return view.findViewById(R.id.theme_blue);
 			case Category.THEME_CYAN:
-				return (ImageView) view.findViewById(R.id.theme_cyan);
+				return view.findViewById(R.id.theme_cyan);
 			case Category.THEME_ORANGE:
-				return (ImageView) view.findViewById(R.id.theme_orange);
+				return view.findViewById(R.id.theme_orange);
 			case Category.THEME_PINK:
-				return (ImageView) view.findViewById(R.id.theme_pink);
+				return view.findViewById(R.id.theme_pink);
 			case Category.THEME_PURPLE:
-				return (ImageView) view.findViewById(R.id.theme_purple);
+				return view.findViewById(R.id.theme_purple);
 			case Category.THEME_RED:
-				return (ImageView) view.findViewById(R.id.theme_red);
+				return view.findViewById(R.id.theme_red);
 			case Category.THEME_TEAL:
-				return (ImageView) view.findViewById(R.id.theme_teal);
+				return view.findViewById(R.id.theme_teal);
 			default:
-				return (ImageView) view.findViewById(R.id.theme_green);
+				return view.findViewById(R.id.theme_green);
 		}
 	}
 

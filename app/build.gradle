@@ -1,31 +1,30 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    namespace("github.yaa110.memento")
 
     defaultConfig {
-        applicationId "github.yaa110.memento"
-        minSdkVersion 14
-        targetSdkVersion 25
-        versionCode 1
+        minSdkVersion 19
+        targetSdkVersion 35
+        compileSdk 35
+        versionCode 2
         versionName "1.0.0"
+        vectorDrawables.useSupportLibrary = true
     }
+
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             shrinkResources true
             debuggable false
-            zipAlignEnabled true
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'com.afollestad.material-dialogs:core:0.9.0.1'
-    compile 'jp.wasabeef:richeditor-android:1.2.0'
+    implementation 'androidx.annotation:annotation-jvm:1.9.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.afollestad.material-dialogs:core:0.9.0.1'
+    implementation 'jp.wasabeef:richeditor-android:2.0.0'
 }

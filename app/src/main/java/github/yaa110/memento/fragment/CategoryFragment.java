@@ -1,8 +1,9 @@
 package github.yaa110.memento.fragment;
 
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.view.View;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
@@ -48,26 +49,11 @@ public class CategoryFragment extends RecyclerFragment<Note, NoteAdapter> {
 		fab_type = view.findViewById(R.id.fab_type);
 		fab_drawing = view.findViewById(R.id.fab_drawing);
 
-		protector.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				toggleFab(true);
-			}
-		});
+		protector.setOnClickListener(view1 -> toggleFab(true));
 
-		fab_type.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				startNoteActivity(DatabaseModel.TYPE_NOTE_SIMPLE, DatabaseModel.NEW_MODEL_ID, 0);
-			}
-		});
+		fab_type.setOnClickListener(view2 -> startNoteActivity(DatabaseModel.TYPE_NOTE_SIMPLE, DatabaseModel.NEW_MODEL_ID, 0));
 
-		fab_drawing.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				startNoteActivity(DatabaseModel.TYPE_NOTE_DRAWING, DatabaseModel.NEW_MODEL_ID, 0);
-			}
-		});
+		fab_drawing.setOnClickListener(view3 -> startNoteActivity(DatabaseModel.TYPE_NOTE_DRAWING, DatabaseModel.NEW_MODEL_ID, 0));
 	}
 
 	private void startNoteActivity(final int type, final long noteId, final int position) {
@@ -81,17 +67,14 @@ public class CategoryFragment extends RecyclerFragment<Note, NoteAdapter> {
 				} catch (InterruptedException ignored) {
 				}
 
-				getActivity().runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Intent intent = new Intent(getContext(), NoteActivity.class);
-						intent.putExtra(OpenHelper.COLUMN_TYPE, type);
-						intent.putExtra("position", position);
-						intent.putExtra(OpenHelper.COLUMN_ID, noteId);
-						intent.putExtra(OpenHelper.COLUMN_PARENT_ID, categoryId);
-						intent.putExtra(OpenHelper.COLUMN_THEME, categoryTheme);
-						startActivityForResult(intent, NoteActivity.REQUEST_CODE);
-					}
+				getActivity().runOnUiThread(() -> {
+					Intent intent = new Intent(getContext(), NoteActivity.class);
+					intent.putExtra(OpenHelper.COLUMN_TYPE, type);
+					intent.putExtra("position", position);
+					intent.putExtra(OpenHelper.COLUMN_ID, noteId);
+					intent.putExtra(OpenHelper.COLUMN_PARENT_ID, categoryId);
+					intent.putExtra(OpenHelper.COLUMN_THEME, categoryTheme);
+					startActivityForResult(intent, NoteActivity.REQUEST_CODE);
 				});
 
 				interrupt();
@@ -129,34 +112,21 @@ public class CategoryFragment extends RecyclerFragment<Note, NoteAdapter> {
 								categoryId
 							);
 
-							getActivity().runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									final Note deletedItem = deleteItem(position);
-									Snackbar.make(fab != null ? fab : selectionToolbar, "1 note was deleted", 7000)
-										.setAction(R.string.undo, new View.OnClickListener() {
-											@Override
-											public void onClick(View view) {
-												new Thread() {
-													@Override
-													public void run() {
-														Controller.instance.undoDeletion();
-														Controller.instance.addCategoryCounter(deletedItem.categoryId, 1);
+							getActivity().runOnUiThread(() -> {
+								final Note deletedItem = deleteItem(position);
+								Snackbar.make(fab != null ? fab : selectionToolbar, "1 note was deleted", 7000)
+									.setAction(R.string.undo, view -> new Thread() {
+										@Override
+										public void run() {
+											Controller.instance.undoDeletion();
+											Controller.instance.addCategoryCounter(deletedItem.categoryId, 1);
 
-														getActivity().runOnUiThread(new Runnable() {
-															@Override
-															public void run() {
-																addItem(deletedItem, position);
-															}
-														});
+											getActivity().runOnUiThread(() -> addItem(deletedItem, position));
 
-														interrupt();
-													}
-												}.start();
-											}
-										})
-										.show();
-								}
+											interrupt();
+										}
+									}.start())
+									.show();
 							});
 
 							interrupt();

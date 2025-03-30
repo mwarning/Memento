@@ -1,7 +1,8 @@
 package github.yaa110.memento.widget.template;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import github.yaa110.memento.R;
 import github.yaa110.memento.model.DatabaseModel;

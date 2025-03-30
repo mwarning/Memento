@@ -1,7 +1,7 @@
 package github.yaa110.memento.model;
 
-import android.support.annotation.DrawableRes;
-import android.support.annotation.StringRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 public class Drawer {
 	public static final int TYPE_SPLITTER = 0;

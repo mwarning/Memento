@@ -2,10 +2,11 @@ package github.yaa110.memento.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import github.yaa110.memento.R;
 import github.yaa110.memento.db.OpenHelper;
@@ -26,7 +27,7 @@ public class CategoryActivity extends AppCompatActivity implements RecyclerFragm
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_category);
 
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
 		try {
@@ -35,12 +36,7 @@ public class CategoryActivity extends AppCompatActivity implements RecyclerFragm
 		} catch (Exception ignored) {
 		}
 
-		toolbar.findViewById(R.id.back_btn).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onBackPressed();
-			}
-		});
+		toolbar.findViewById(R.id.back_btn).setOnClickListener(view -> onBackPressed());
 
 		if (savedInstanceState == null) {
 			fragment = new CategoryFragment();

@@ -3,16 +3,18 @@ package github.yaa110.memento.fragment.template;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,113 +60,85 @@ abstract public class RecyclerFragment<T extends DatabaseModel, A extends ModelA
 		super.onViewCreated(view, savedInstanceState);
 
 		fab = view.findViewById(R.id.fab);
-		recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+		recyclerView = view.findViewById(R.id.recyclerView);
 		empty = view.findViewById(R.id.empty);
-		selectionToolbar = (Toolbar) getActivity().findViewById(R.id.selection_toolbar);
-		selectionCounter = (TextView) selectionToolbar.findViewById(R.id.selection_counter);
+		selectionToolbar = getActivity().findViewById(R.id.selection_toolbar);
+		selectionCounter = selectionToolbar.findViewById(R.id.selection_counter);
 
 		init(view);
 
-		selectionToolbar.findViewById(R.id.selection_back).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				toggleSelection(false);
-			}
-		});
+		selectionToolbar.findViewById(R.id.selection_back).setOnClickListener(view3 -> toggleSelection(false));
 
-		selectionToolbar.findViewById(R.id.selection_delete).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				final ArrayList<T> undos = new ArrayList<>();
-				undos.addAll(selected);
-				toggleSelection(false);
+		selectionToolbar.findViewById(R.id.selection_delete).setOnClickListener(view4 -> {
+			final ArrayList<T> undos = new ArrayList<>(selected);
+			toggleSelection(false);
 
-				new Thread() {
-					@Override
-					public void run() {
-						final int length = undos.size();
-						String[] ids = new String[length];
-						final int[] sortablePosition = new int[length];
+			new Thread() {
+				@Override
+				public void run() {
+					final int length = undos.size();
+					String[] ids = new String[length];
+					final int[] sortablePosition = new int[length];
 
-						for (int i = 0; i < length; i++) {
-							T item = undos.get(i);
-							ids[i] = String.format(Locale.US, "%d", item.id);
-							int position = items.indexOf(item);
-							item.position = position;
-							sortablePosition[i] = position;
+					for (int i = 0; i < length; i++) {
+						T item = undos.get(i);
+						ids[i] = String.format(Locale.US, "%d", item.id);
+						int position = items.indexOf(item);
+						item.position = position;
+						sortablePosition[i] = position;
+					}
+
+					Controller.instance.deleteNotes(ids, categoryId);
+
+					Arrays.sort(sortablePosition);
+
+					getActivity().runOnUiThread(() -> {
+						for (int i = length - 1; i >= 0; i--) {
+							items.remove(sortablePosition[i]);
+							adapter.notifyItemRemoved(sortablePosition[i]);
 						}
 
-						Controller.instance.deleteNotes(ids, categoryId);
+						toggleEmpty();
 
-						Arrays.sort(sortablePosition);
+						StringBuilder message = new StringBuilder();
+						message.append(length).append(" ").append(getItemName());
+						if (length > 1) message.append("s were deleted");
+						else message.append(" was deleted.");
 
-						getActivity().runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								for (int i = length - 1; i >= 0; i--) {
-									items.remove(sortablePosition[i]);
-									adapter.notifyItemRemoved(sortablePosition[i]);
-								}
+						Snackbar.make(fab != null ? fab : selectionToolbar, message.toString(), 7000)
+							.setAction(R.string.undo, view1 -> new Thread() {
+								@Override
+								public void run() {
+									Controller.instance.undoDeletion();
+									if (categoryId != DatabaseModel.NEW_MODEL_ID) {
+										Controller.instance.addCategoryCounter(categoryId, length);
+									}
 
-								toggleEmpty();
+									Collections.sort(undos, (t1, t2) -> {
+										if (t1.position < t2.position) return -1;
+										if (t1.position == t2.position) return 0;
+										return 1;
+									});
 
-								StringBuilder message = new StringBuilder();
-								message.append(length).append(" ").append(getItemName());
-								if (length > 1) message.append("s were deleted");
-								else message.append(" was deleted.");
-
-								Snackbar.make(fab != null ? fab : selectionToolbar, message.toString(), 7000)
-									.setAction(R.string.undo, new View.OnClickListener() {
-										@Override
-										public void onClick(View view) {
-											new Thread() {
-												@Override
-												public void run() {
-													Controller.instance.undoDeletion();
-													if (categoryId != DatabaseModel.NEW_MODEL_ID) {
-														Controller.instance.addCategoryCounter(categoryId, length);
-													}
-
-													Collections.sort(undos, new Comparator<T>() {
-														@Override
-														public int compare(T t1, T t2) {
-															if (t1.position < t2.position) return -1;
-															if (t1.position == t2.position) return 0;
-															return 1;
-														}
-													});
-
-													getActivity().runOnUiThread(new Runnable() {
-														@Override
-														public void run() {
-															for (int i = 0; i < length; i++) {
-																T item = undos.get(i);
-																addItem(item, item.position);
-															}
-														}
-													});
-													interrupt();
-												}
-											}.start();
+									getActivity().runOnUiThread(() -> {
+										for (int i = 0; i < length; i++) {
+											T item = undos.get(i);
+											addItem(item, item.position);
 										}
-									})
-									.show();
-							}
-						});
+									});
+									interrupt();
+								}
+							}.start())
+							.show();
+					});
 
-						interrupt();
-					}
-				}.start();
-			}
+					interrupt();
+				}
+			}.start();
 		});
 
 		if (fab != null) {
-			fab.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					onClickFab();
-				}
-			});
+			fab.setOnClickListener(view2 -> onClickFab());
 		}
 
 		Intent data = getActivity().getIntent();
@@ -231,18 +205,15 @@ abstract public class RecyclerFragment<T extends DatabaseModel, A extends ModelA
 						ModelAdapter.ClickListener.class
 					).newInstance(items, selected, getListener());
 
-					getActivity().runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							toggleEmpty();
+					getActivity().runOnUiThread(() -> {
+						toggleEmpty();
 
-							recyclerView.setAdapter(adapter);
-							recyclerView.setLayoutManager(new LinearLayoutManager(
-								getContext(),
-								LinearLayoutManager.VERTICAL,
-								false
-							));
-						}
+						recyclerView.setAdapter(adapter);
+						recyclerView.setLayoutManager(new LinearLayoutManager(
+							getContext(),
+							LinearLayoutManager.VERTICAL,
+							false
+						));
 					});
 				} catch (Exception ignored) {
 				} finally {

@@ -1,8 +1,9 @@
 package github.yaa110.memento.widget;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import github.yaa110.memento.App;
 

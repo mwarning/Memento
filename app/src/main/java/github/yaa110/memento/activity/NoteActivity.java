@@ -2,10 +2,11 @@ package github.yaa110.memento.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import github.yaa110.memento.R;
 import github.yaa110.memento.db.OpenHelper;
@@ -35,7 +36,7 @@ public class NoteActivity extends AppCompatActivity implements NoteFragment.Call
 
 		position = data.getIntExtra("position", 0);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
 		try {
@@ -44,12 +45,7 @@ public class NoteActivity extends AppCompatActivity implements NoteFragment.Call
 		} catch (Exception ignored) {
 		}
 
-		toolbar.findViewById(R.id.back_btn).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onBackPressed();
-			}
-		});
+		toolbar.findViewById(R.id.back_btn).setOnClickListener(view -> onBackPressed());
 
 		if (savedInstanceState == null) {
 			if (data.getIntExtra(OpenHelper.COLUMN_TYPE, DatabaseModel.TYPE_NOTE_SIMPLE) == DatabaseModel.TYPE_NOTE_SIMPLE) {
@@ -66,29 +62,23 @@ public class NoteActivity extends AppCompatActivity implements NoteFragment.Call
 
 	@Override
 	public void onBackPressed() {
-		fragment.saveNote(new NoteFragment.SaveListener() {
-			@Override
-			public void onSave() {
-				final Intent data = new Intent();
-				data.putExtra("position", position);
-				data.putExtra(OpenHelper.COLUMN_ID, fragment.note.id);
+		fragment.saveNote(() -> {
+			final Intent data = new Intent();
+			data.putExtra("position", position);
+			data.putExtra(OpenHelper.COLUMN_ID, fragment.note.id);
 
-				switch (noteResult) {
-					case RESULT_NEW:
-						data.putExtra(OpenHelper.COLUMN_TYPE, fragment.note.type);
-						data.putExtra(OpenHelper.COLUMN_DATE, fragment.note.createdAt);
-					case RESULT_EDIT:
-						data.putExtra(OpenHelper.COLUMN_TITLE, fragment.note.title);
-				}
-
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						setResult(noteResult, data);
-						finish();
-					}
-				});
+			switch (noteResult) {
+				case RESULT_NEW:
+					data.putExtra(OpenHelper.COLUMN_TYPE, fragment.note.type);
+					data.putExtra(OpenHelper.COLUMN_DATE, fragment.note.createdAt);
+				case RESULT_EDIT:
+					data.putExtra(OpenHelper.COLUMN_TITLE, fragment.note.title);
 			}
+
+			runOnUiThread(() -> {
+				setResult(noteResult, data);
+				finish();
+			});
 		});
 	}
 

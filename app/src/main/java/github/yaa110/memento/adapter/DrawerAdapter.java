@@ -91,8 +91,8 @@ public class DrawerAdapter extends BaseAdapter {
 				default:
 					convertView = inflator.inflate(R.layout.drawer_item, parent, false);
 					holder = new ViewHolder();
-					holder.icon = (ImageView) convertView.findViewById(R.id.icon);
-					holder.title = (TextView) convertView.findViewById(R.id.title);
+					holder.icon = convertView.findViewById(R.id.icon);
+					holder.title = convertView.findViewById(R.id.title);
 					holder.item = convertView.findViewById(R.id.item);
 					convertView.setTag(holder);
 					break;
@@ -105,12 +105,7 @@ public class DrawerAdapter extends BaseAdapter {
 			}
 
 			holder.title.setText(drawer.title);
-			holder.item.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					listener.onClick(drawer.type);
-				}
-			});
+			holder.item.setOnClickListener(view -> listener.onClick(drawer.type));
 			holder.icon.setImageResource(drawer.resId);
 		}
 
