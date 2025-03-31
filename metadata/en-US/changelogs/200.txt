@@ -1,0 +1,2 @@
+* Port to Android 15
+* Mnimum supported Android version is now 4.4
