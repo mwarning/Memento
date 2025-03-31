@@ -20,5 +20,5 @@ A simple note taking app for Android.
 ## Screenshots
 
 <p align="center">
-<img src="Screenshots/001.png" width="300"> <img src="Screenshots/002.png" width="300"> <img src="Screenshots/003.png" width="300"> <img src="Screenshots/004.png" width="300"> <img src="Screenshots/005.png" width="300">  <img src="Screenshots/006.png" width="300">
+<img src="metadata/en-US/images/phoneScreenshots/001.png" width="300"> <img src="metadata/en-US/images/phoneScreenshots/002.png" width="300"> <img src="metadata/en-US/images/phoneScreenshots/003.png" width="300"> <img src="metadata/en-US/images/phoneScreenshots/004.png" width="300"> <img src="metadata/en-US/images/phoneScreenshots/005.png" width="300">  <img src="metadata/en-US/images/phoneScreenshots/006.png" width="300">
 </p>
