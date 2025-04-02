@@ -8,21 +8,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import github.yaa110.memento.App;
 
 public class FixedHeightRecyclerView extends RecyclerView {
-	public FixedHeightRecyclerView(Context context) {
-		super(context);
-	}
+    public FixedHeightRecyclerView(Context context) {
+        super(context);
+    }
 
-	public FixedHeightRecyclerView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
+    public FixedHeightRecyclerView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-	public FixedHeightRecyclerView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-	}
+    public FixedHeightRecyclerView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
 
-	@Override
-	protected void onMeasure(int widthSpec, int heightSpec) {
-		heightSpec = MeasureSpec.makeMeasureSpec(App.DEVICE_HEIGHT / 2, MeasureSpec.EXACTLY);
-		super.onMeasure(widthSpec, heightSpec);
-	}
+    @Override
+    protected void onMeasure(int widthSpec, int heightSpec) {
+        heightSpec = MeasureSpec.makeMeasureSpec(App.DEVICE_HEIGHT / 2, MeasureSpec.EXACTLY);
+        super.onMeasure(widthSpec, heightSpec);
+    }
 }

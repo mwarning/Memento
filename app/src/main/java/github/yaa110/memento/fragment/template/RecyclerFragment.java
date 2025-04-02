@@ -19,7 +19,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Locale;
 
 import github.yaa110.memento.R;
@@ -32,244 +31,248 @@ import github.yaa110.memento.model.DatabaseModel;
 import github.yaa110.memento.model.Note;
 
 abstract public class RecyclerFragment<T extends DatabaseModel, A extends ModelAdapter> extends Fragment {
-	public View fab;
-	private RecyclerView recyclerView;
-	private View empty;
-	public Toolbar selectionToolbar;
-	private TextView selectionCounter;
-	public boolean selectionState = false;
+    public View fab;
+    public Toolbar selectionToolbar;
+    public boolean selectionState = false;
+    public ArrayList<T> items;
+    public ArrayList<T> selected = new ArrayList<>();
+    public Callbacks activity;
+    public long categoryId = DatabaseModel.NEW_MODEL_ID;
+    public String categoryTitle;
+    public int categoryTheme;
+    public int categoryPosition = 0;
+    private RecyclerView recyclerView;
+    private View empty;
+    private TextView selectionCounter;
+    private A adapter;
 
-	private A adapter;
-	public ArrayList<T> items;
-	public ArrayList<T> selected = new ArrayList<>();
-	public Callbacks activity;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(getLayout(), container, false);
+    }
 
-	public long categoryId = DatabaseModel.NEW_MODEL_ID;
-	public String categoryTitle;
-	public int categoryTheme;
-	public int categoryPosition = 0;
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		return inflater.inflate(getLayout(), container, false);
-	}
+        fab = view.findViewById(R.id.fab);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        empty = view.findViewById(R.id.empty);
+        selectionToolbar = getActivity().findViewById(R.id.selection_toolbar);
+        selectionCounter = selectionToolbar.findViewById(R.id.selection_counter);
 
-	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+        init(view);
 
-		fab = view.findViewById(R.id.fab);
-		recyclerView = view.findViewById(R.id.recyclerView);
-		empty = view.findViewById(R.id.empty);
-		selectionToolbar = getActivity().findViewById(R.id.selection_toolbar);
-		selectionCounter = selectionToolbar.findViewById(R.id.selection_counter);
+        selectionToolbar.findViewById(R.id.selection_back).setOnClickListener(view3 -> toggleSelection(false));
 
-		init(view);
+        selectionToolbar.findViewById(R.id.selection_delete).setOnClickListener(view4 -> {
+            final ArrayList<T> undos = new ArrayList<>(selected);
+            toggleSelection(false);
 
-		selectionToolbar.findViewById(R.id.selection_back).setOnClickListener(view3 -> toggleSelection(false));
+            new Thread() {
+                @Override
+                public void run() {
+                    final int length = undos.size();
+                    String[] ids = new String[length];
+                    final int[] sortablePosition = new int[length];
 
-		selectionToolbar.findViewById(R.id.selection_delete).setOnClickListener(view4 -> {
-			final ArrayList<T> undos = new ArrayList<>(selected);
-			toggleSelection(false);
+                    for (int i = 0; i < length; i++) {
+                        T item = undos.get(i);
+                        ids[i] = String.format(Locale.US, "%d", item.id);
+                        int position = items.indexOf(item);
+                        item.position = position;
+                        sortablePosition[i] = position;
+                    }
 
-			new Thread() {
-				@Override
-				public void run() {
-					final int length = undos.size();
-					String[] ids = new String[length];
-					final int[] sortablePosition = new int[length];
+                    Controller.instance.deleteNotes(ids, categoryId);
 
-					for (int i = 0; i < length; i++) {
-						T item = undos.get(i);
-						ids[i] = String.format(Locale.US, "%d", item.id);
-						int position = items.indexOf(item);
-						item.position = position;
-						sortablePosition[i] = position;
-					}
+                    Arrays.sort(sortablePosition);
 
-					Controller.instance.deleteNotes(ids, categoryId);
+                    getActivity().runOnUiThread(() -> {
+                        for (int i = length - 1; i >= 0; i--) {
+                            items.remove(sortablePosition[i]);
+                            adapter.notifyItemRemoved(sortablePosition[i]);
+                        }
 
-					Arrays.sort(sortablePosition);
+                        toggleEmpty();
 
-					getActivity().runOnUiThread(() -> {
-						for (int i = length - 1; i >= 0; i--) {
-							items.remove(sortablePosition[i]);
-							adapter.notifyItemRemoved(sortablePosition[i]);
-						}
+                        StringBuilder message = new StringBuilder();
+                        message.append(length).append(" ").append(getItemName());
+                        if (length > 1) message.append("s were deleted");
+                        else message.append(" was deleted.");
 
-						toggleEmpty();
+                        Snackbar.make(fab != null ? fab : selectionToolbar, message.toString(), 7000)
+                                .setAction(R.string.undo, view1 -> new Thread() {
+                                    @Override
+                                    public void run() {
+                                        Controller.instance.undoDeletion();
+                                        if (categoryId != DatabaseModel.NEW_MODEL_ID) {
+                                            Controller.instance.addCategoryCounter(categoryId, length);
+                                        }
 
-						StringBuilder message = new StringBuilder();
-						message.append(length).append(" ").append(getItemName());
-						if (length > 1) message.append("s were deleted");
-						else message.append(" was deleted.");
+                                        Collections.sort(undos, (t1, t2) -> {
+                                            if (t1.position < t2.position) return -1;
+                                            if (t1.position == t2.position) return 0;
+                                            return 1;
+                                        });
 
-						Snackbar.make(fab != null ? fab : selectionToolbar, message.toString(), 7000)
-							.setAction(R.string.undo, view1 -> new Thread() {
-								@Override
-								public void run() {
-									Controller.instance.undoDeletion();
-									if (categoryId != DatabaseModel.NEW_MODEL_ID) {
-										Controller.instance.addCategoryCounter(categoryId, length);
-									}
+                                        getActivity().runOnUiThread(() -> {
+                                            for (int i = 0; i < length; i++) {
+                                                T item = undos.get(i);
+                                                addItem(item, item.position);
+                                            }
+                                        });
+                                        interrupt();
+                                    }
+                                }.start())
+                                .show();
+                    });
 
-									Collections.sort(undos, (t1, t2) -> {
-										if (t1.position < t2.position) return -1;
-										if (t1.position == t2.position) return 0;
-										return 1;
-									});
+                    interrupt();
+                }
+            }.start();
+        });
 
-									getActivity().runOnUiThread(() -> {
-										for (int i = 0; i < length; i++) {
-											T item = undos.get(i);
-											addItem(item, item.position);
-										}
-									});
-									interrupt();
-								}
-							}.start())
-							.show();
-					});
+        if (fab != null) {
+            fab.setOnClickListener(view2 -> onClickFab());
+        }
 
-					interrupt();
-				}
-			}.start();
-		});
+        Intent data = getActivity().getIntent();
+        if (data != null) {
+            // Get the parent data
+            categoryId = data.getLongExtra(OpenHelper.COLUMN_ID, DatabaseModel.NEW_MODEL_ID);
+            categoryTitle = data.getStringExtra(OpenHelper.COLUMN_TITLE);
+            categoryTheme = data.getIntExtra(OpenHelper.COLUMN_THEME, Category.THEME_GREEN);
+            categoryPosition = data.getIntExtra("position", 0);
 
-		if (fab != null) {
-			fab.setOnClickListener(view2 -> onClickFab());
-		}
+            if (categoryTitle != null) {
+                ((TextView) getActivity().findViewById(R.id.title)).setText(categoryTitle);
+            }
+        }
 
-		Intent data = getActivity().getIntent();
-		if (data != null) {
-			// Get the parent data
-			categoryId = data.getLongExtra(OpenHelper.COLUMN_ID, DatabaseModel.NEW_MODEL_ID);
-			categoryTitle = data.getStringExtra(OpenHelper.COLUMN_TITLE);
-			categoryTheme = data.getIntExtra(OpenHelper.COLUMN_THEME, Category.THEME_GREEN);
-			categoryPosition = data.getIntExtra("position", 0);
+        loadItems();
+    }
 
-			if (categoryTitle != null) {
-				((TextView) getActivity().findViewById(R.id.title)).setText(categoryTitle);
-			}
-		}
+    public void onChangeCounter(int count) {
+        selectionCounter.setText(String.format(Locale.US, "%d", count));
+    }
 
-		loadItems();
-	}
+    public void toggleSelection(boolean state) {
+        selectionState = state;
+        activity.onChangeSelection(state);
+        if (state) {
+            Animator.create(getContext())
+                    .on(selectionToolbar)
+                    .setStartVisibility(View.VISIBLE)
+                    .animate(R.anim.fade_in);
+        } else {
+            Animator.create(getContext())
+                    .on(selectionToolbar)
+                    .setEndVisibility(View.GONE)
+                    .animate(R.anim.fade_out);
 
-	public void onChangeCounter(int count) {
-		selectionCounter.setText(String.format(Locale.US, "%d", count));
-	}
+            deselectAll();
+        }
+    }
 
-	public void toggleSelection(boolean state) {
-		selectionState = state;
-		activity.onChangeSelection(state);
-		if (state) {
-			Animator.create(getContext())
-				.on(selectionToolbar)
-				.setStartVisibility(View.VISIBLE)
-				.animate(R.anim.fade_in);
-		} else {
-			Animator.create(getContext())
-				.on(selectionToolbar)
-				.setEndVisibility(View.GONE)
-				.animate(R.anim.fade_out);
+    private void deselectAll() {
+        while (!selected.isEmpty()) {
+            adapter.notifyItemChanged(items.indexOf(selected.remove(0)));
+        }
+    }
 
-			deselectAll();
-		}
-	}
+    public void loadItems() {
+        new Thread() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public void run() {
+                try {
+                    if (categoryId == DatabaseModel.NEW_MODEL_ID) {
+                        // Get all categories
+                        items = (ArrayList<T>) Category.all();
+                    } else {
+                        // Get notes of the category by categoryId
+                        items = (ArrayList<T>) Note.all(categoryId);
+                    }
 
-	private void deselectAll() {
-		while (!selected.isEmpty()) {
-			adapter.notifyItemChanged(items.indexOf(selected.remove(0)));
-		}
-	}
+                    adapter = getAdapterClass().getDeclaredConstructor(
+                            ArrayList.class,
+                            ArrayList.class,
+                            ModelAdapter.ClickListener.class
+                    ).newInstance(items, selected, getListener());
 
-	public void loadItems() {
-		new Thread() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void run() {
-				try {
-					if (categoryId == DatabaseModel.NEW_MODEL_ID) {
-						// Get all categories
-						items = (ArrayList<T>) Category.all();
-					} else {
-						// Get notes of the category by categoryId
-						items = (ArrayList<T>) Note.all(categoryId);
-					}
+                    getActivity().runOnUiThread(() -> {
+                        toggleEmpty();
 
-					adapter = getAdapterClass().getDeclaredConstructor(
-						ArrayList.class,
-						ArrayList.class,
-						ModelAdapter.ClickListener.class
-					).newInstance(items, selected, getListener());
+                        recyclerView.setAdapter(adapter);
+                        recyclerView.setLayoutManager(new LinearLayoutManager(
+                                getContext(),
+                                LinearLayoutManager.VERTICAL,
+                                false
+                        ));
+                    });
+                } catch (Exception ignored) {
+                } finally {
+                    interrupt();
+                }
+            }
+        }.start();
+    }
 
-					getActivity().runOnUiThread(() -> {
-						toggleEmpty();
+    private void toggleEmpty() {
+        if (items.isEmpty()) {
+            empty.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            empty.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
 
-						recyclerView.setAdapter(adapter);
-						recyclerView.setLayoutManager(new LinearLayoutManager(
-							getContext(),
-							LinearLayoutManager.VERTICAL,
-							false
-						));
-					});
-				} catch (Exception ignored) {
-				} finally {
-					interrupt();
-				}
-			}
-		}.start();
-	}
+    public void refreshItem(int position) {
+        adapter.notifyItemChanged(position);
+    }
 
-	private void toggleEmpty() {
-		if (items.isEmpty()) {
-			empty.setVisibility(View.VISIBLE);
-			recyclerView.setVisibility(View.GONE);
-		} else {
-			empty.setVisibility(View.GONE);
-			recyclerView.setVisibility(View.VISIBLE);
-		}
-	}
+    public T deleteItem(int position) {
+        T item = items.remove(position);
+        adapter.notifyItemRemoved(position);
+        toggleEmpty();
+        return item;
+    }
 
-	public void refreshItem(int position) {
-		adapter.notifyItemChanged(position);
-	}
+    public void addItem(T item, int position) {
+        if (items.isEmpty()) {
+            empty.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
 
-	public T deleteItem(int position) {
-		T item = items.remove(position);
-		adapter.notifyItemRemoved(position);
-		toggleEmpty();
-		return item;
-	}
+        items.add(position, item);
+        adapter.notifyItemInserted(position);
+    }
 
-	public void addItem(T item, int position) {
-		if (items.isEmpty()) {
-			empty.setVisibility(View.GONE);
-			recyclerView.setVisibility(View.VISIBLE);
-		}
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.activity = (Callbacks) context;
+    }
 
-		items.add(position, item);
-		adapter.notifyItemInserted(position);
-	}
+    public void init(View view) {
+    }
 
-	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
-		this.activity = (Callbacks) context;
-	}
+    public abstract void onClickFab();
 
-	public void init(View view) {}
+    public abstract int getLayout();
 
-	public abstract void onClickFab();
-	public abstract int getLayout();
-	public abstract String getItemName();
-	public abstract Class<A> getAdapterClass();
-	public abstract ModelAdapter.ClickListener getListener();
+    public abstract String getItemName();
 
-	public interface Callbacks {
-		void onChangeSelection(boolean state);
-		void toggleOneSelection(boolean state);
-	}
+    public abstract Class<A> getAdapterClass();
+
+    public abstract ModelAdapter.ClickListener getListener();
+
+    public interface Callbacks {
+        void onChangeSelection(boolean state);
+
+        void toggleOneSelection(boolean state);
+    }
 }

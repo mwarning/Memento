@@ -11,56 +11,52 @@ import android.view.WindowManager;
 import github.yaa110.memento.db.Controller;
 
 public class App extends Application {
-	public static App instance;
-	public static int DEVICE_HEIGHT;
+    public static final String BACKUP_EXTENSION = "mem";
+    /* Preferences' Keys */
+    public static final String SMART_FAB_KEY = "a1";
+    public static final String SORT_CATEGORIES_KEY = "a2";
+    public static final String SORT_NOTES_KEY = "a3";
+    public static final String LAST_PATH_KEY = "a4";
+    public static App instance;
+    public static int DEVICE_HEIGHT;
+    /* Preferences */
+    public static boolean smartFab;
+    public static int sortCategoriesBy;
+    public static int sortNotesBy;
+    public static String last_path;
+    private SharedPreferences prefs;
 
-	/* Preferences */
-	public static boolean smartFab;
-	public static int sortCategoriesBy;
-	public static int sortNotesBy;
-	public static String last_path;
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
-	public static final String BACKUP_EXTENSION = "mem";
+        // Get preferences
+        prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+        smartFab = prefs.getBoolean(SMART_FAB_KEY, true);
+        sortCategoriesBy = sanitizeSort(prefs.getInt(SORT_CATEGORIES_KEY, Controller.SORT_DATE_DESC));
+        sortNotesBy = sanitizeSort(prefs.getInt(SORT_NOTES_KEY, Controller.SORT_DATE_DESC));
+        last_path = prefs.getString(LAST_PATH_KEY, null);
 
-	/* Preferences' Keys */
-	public static final String SMART_FAB_KEY = "a1";
-	public static final String SORT_CATEGORIES_KEY = "a2";
-	public static final String SORT_NOTES_KEY = "a3";
-	public static final String LAST_PATH_KEY = "a4";
+        // Setup database controller
+        Controller.create(getApplicationContext());
 
-	private SharedPreferences prefs;
+        Point size = new Point();
+        ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
+        DEVICE_HEIGHT = size.y;
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
+        instance = this;
+    }
 
-		// Get preferences
-		prefs = getSharedPreferences(getPackageName(), MODE_PRIVATE);
-		smartFab = prefs.getBoolean(SMART_FAB_KEY, true);
-		sortCategoriesBy = sanitizeSort(prefs.getInt(SORT_CATEGORIES_KEY, Controller.SORT_DATE_DESC));
-		sortNotesBy = sanitizeSort(prefs.getInt(SORT_NOTES_KEY, Controller.SORT_DATE_DESC));
-		last_path = prefs.getString(LAST_PATH_KEY, null);
+    private int sanitizeSort(int sortId) {
+        if (sortId < 0 || sortId > 3) return Controller.SORT_DATE_DESC;
+        return sortId;
+    }
 
-		// Setup database controller
-		Controller.create(getApplicationContext());
+    public void putPrefs(String key, boolean value) {
+        prefs.edit().putBoolean(key, value).apply();
+    }
 
-		Point size = new Point();
-		((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
-		DEVICE_HEIGHT = size.y;
-
-		instance = this;
-	}
-
-	private int sanitizeSort(int sortId) {
-		if (sortId < 0 || sortId > 3) return Controller.SORT_DATE_DESC;
-		return sortId;
-	}
-
-	public void putPrefs(String key, boolean value) {
-		prefs.edit().putBoolean(key, value).apply();
-	}
-
-	public void putPrefs(String key, String value) {
-		prefs.edit().putString(key, value).apply();
-	}
+    public void putPrefs(String key, String value) {
+        prefs.edit().putString(key, value).apply();
+    }
 }

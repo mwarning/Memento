@@ -11,12 +11,12 @@ import github.yaa110.memento.model.Category;
 import github.yaa110.memento.widget.CategoryViewHolder;
 
 public class CategoryAdapter extends ModelAdapter<Category, CategoryViewHolder> {
-	public CategoryAdapter(ArrayList<Category> items, ArrayList<Category> selected, ClickListener<Category> listener) {
-		super(items, selected, listener);
-	}
+    public CategoryAdapter(ArrayList<Category> items, ArrayList<Category> selected, ClickListener<Category> listener) {
+        super(items, selected, listener);
+    }
 
-	@Override
-	public CategoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		return new CategoryViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false));
-	}
+    @Override
+    public CategoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        return new CategoryViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false));
+    }
 }

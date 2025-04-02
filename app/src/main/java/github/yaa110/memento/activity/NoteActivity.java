@@ -2,7 +2,6 @@ package github.yaa110.memento.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,80 +16,80 @@ import github.yaa110.memento.model.Category;
 import github.yaa110.memento.model.DatabaseModel;
 
 public class NoteActivity extends AppCompatActivity implements NoteFragment.Callbacks {
-	public static final int REQUEST_CODE = 2;
-	public static final int RESULT_NEW = 101;
-	public static final int RESULT_EDIT = 102;
-	public static final int RESULT_DELETE = 103;
+    public static final int REQUEST_CODE = 2;
+    public static final int RESULT_NEW = 101;
+    public static final int RESULT_EDIT = 102;
+    public static final int RESULT_DELETE = 103;
 
-	private int noteResult = 0;
-	private int position;
+    private int noteResult = 0;
+    private int position;
 
-	private NoteFragment fragment;
+    private NoteFragment fragment;
 
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		Intent data = getIntent();
-		setTheme(Category.getStyle(data.getIntExtra(OpenHelper.COLUMN_THEME, Category.THEME_GREEN)));
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_note);
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Intent data = getIntent();
+        setTheme(Category.getStyle(data.getIntExtra(OpenHelper.COLUMN_THEME, Category.THEME_GREEN)));
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_note);
 
-		position = data.getIntExtra("position", 0);
+        position = data.getIntExtra("position", 0);
 
-		Toolbar toolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-		try {
-			//noinspection ConstantConditions
-			getSupportActionBar().setDisplayShowTitleEnabled(false);
-		} catch (Exception ignored) {
-		}
+        try {
+            //noinspection ConstantConditions
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        } catch (Exception ignored) {
+        }
 
-		toolbar.findViewById(R.id.back_btn).setOnClickListener(view -> onBackPressed());
+        toolbar.findViewById(R.id.back_btn).setOnClickListener(view -> onBackPressed());
 
-		if (savedInstanceState == null) {
-			if (data.getIntExtra(OpenHelper.COLUMN_TYPE, DatabaseModel.TYPE_NOTE_SIMPLE) == DatabaseModel.TYPE_NOTE_SIMPLE) {
-				fragment = new SimpleNoteFragment();
-			} else {
-				fragment = new DrawingNoteFragment();
-			}
+        if (savedInstanceState == null) {
+            if (data.getIntExtra(OpenHelper.COLUMN_TYPE, DatabaseModel.TYPE_NOTE_SIMPLE) == DatabaseModel.TYPE_NOTE_SIMPLE) {
+                fragment = new SimpleNoteFragment();
+            } else {
+                fragment = new DrawingNoteFragment();
+            }
 
-			getSupportFragmentManager().beginTransaction()
-				.add(R.id.container, fragment)
-				.commit();
-		}
-	}
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, fragment)
+                    .commit();
+        }
+    }
 
-	@Override
-	public void onBackPressed() {
-		fragment.saveNote(() -> {
-			final Intent data = new Intent();
-			data.putExtra("position", position);
-			data.putExtra(OpenHelper.COLUMN_ID, fragment.note.id);
+    @Override
+    public void onBackPressed() {
+        fragment.saveNote(() -> {
+            final Intent data = new Intent();
+            data.putExtra("position", position);
+            data.putExtra(OpenHelper.COLUMN_ID, fragment.note.id);
 
-			switch (noteResult) {
-				case RESULT_NEW:
-					data.putExtra(OpenHelper.COLUMN_TYPE, fragment.note.type);
-					data.putExtra(OpenHelper.COLUMN_DATE, fragment.note.createdAt);
-				case RESULT_EDIT:
-					data.putExtra(OpenHelper.COLUMN_TITLE, fragment.note.title);
-			}
+            switch (noteResult) {
+                case RESULT_NEW:
+                    data.putExtra(OpenHelper.COLUMN_TYPE, fragment.note.type);
+                    data.putExtra(OpenHelper.COLUMN_DATE, fragment.note.createdAt);
+                case RESULT_EDIT:
+                    data.putExtra(OpenHelper.COLUMN_TITLE, fragment.note.title);
+            }
 
-			runOnUiThread(() -> {
-				setResult(noteResult, data);
-				finish();
-			});
-		});
-	}
+            runOnUiThread(() -> {
+                setResult(noteResult, data);
+                finish();
+            });
+        });
+    }
 
-	@Override
-	public void setNoteResult(int result, boolean closeActivity) {
-		noteResult = result;
-		if (closeActivity) {
-			Intent data = new Intent();
-			data.putExtra("position", position);
-			data.putExtra(OpenHelper.COLUMN_ID, fragment.note.id);
-			setResult(result, data);
-			finish();
-		}
-	}
+    @Override
+    public void setNoteResult(int result, boolean closeActivity) {
+        noteResult = result;
+        if (closeActivity) {
+            Intent data = new Intent();
+            data.putExtra("position", position);
+            data.putExtra(OpenHelper.COLUMN_ID, fragment.note.id);
+            setResult(result, data);
+            finish();
+        }
+    }
 }
