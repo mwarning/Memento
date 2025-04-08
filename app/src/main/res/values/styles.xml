@@ -5,7 +5,14 @@
         <attr name="emptyIcon" format="reference" />
     </declare-styleable>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- make the screen not overlap with the system bars -->
+        <item name="android:fitsSystemWindows">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <style name="AppTheme" parent="AppThemeBase">
         <item name="colorPrimary">@color/main_color</item>
         <item name="colorPrimaryDark">@color/main_color_dark</item>
         <item name="colorAccent">@color/main_color</item>
@@ -13,7 +20,7 @@
         <item name="emptyIcon">@drawable/ic_empty_categories</item>
     </style>
 
-    <style name="AppThemeRed" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeRed" parent="AppThemeBase">
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryDark">@color/red_dark</item>
         <item name="colorAccent">@color/red</item>
@@ -21,7 +28,7 @@
         <item name="emptyIcon">@drawable/empty_red</item>
     </style>
 
-    <style name="AppThemePink" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemePink" parent="AppThemeBase">
         <item name="colorPrimary">@color/pink</item>
         <item name="colorPrimaryDark">@color/pink_dark</item>
         <item name="colorAccent">@color/pink</item>
@@ -29,7 +36,7 @@
         <item name="emptyIcon">@drawable/empty_pink</item>
     </style>
 
-    <style name="AppThemePurple" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemePurple" parent="AppThemeBase">
         <item name="colorPrimary">@color/purple</item>
         <item name="colorPrimaryDark">@color/purple_dark</item>
         <item name="colorAccent">@color/purple</item>
@@ -37,7 +44,7 @@
         <item name="emptyIcon">@drawable/empty_purple</item>
     </style>
 
-    <style name="AppThemeBlue" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeBlue" parent="AppThemeBase">
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue_dark</item>
         <item name="colorAccent">@color/blue</item>
@@ -45,7 +52,7 @@
         <item name="emptyIcon">@drawable/empty_blue</item>
     </style>
 
-    <style name="AppThemeCyan" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeCyan" parent="AppThemeBase">
         <item name="colorPrimary">@color/cyan</item>
         <item name="colorPrimaryDark">@color/cyan_dark</item>
         <item name="colorAccent">@color/cyan</item>
@@ -53,7 +60,7 @@
         <item name="emptyIcon">@drawable/empty_cyan</item>
     </style>
     
-    <style name="AppThemeTeal" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeTeal" parent="AppThemeBase">
         <item name="colorPrimary">@color/teal</item>
         <item name="colorPrimaryDark">@color/teal_dark</item>
         <item name="colorAccent">@color/teal</item>
@@ -61,7 +68,7 @@
         <item name="emptyIcon">@drawable/empty_teal</item>
     </style>
     
-    <style name="AppThemeGreen" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeGreen" parent="AppThemeBase">
         <item name="colorPrimary">@color/green</item>
         <item name="colorPrimaryDark">@color/green_dark</item>
         <item name="colorAccent">@color/green</item>
@@ -69,7 +76,7 @@
         <item name="emptyIcon">@drawable/empty_green</item>
     </style>
     
-    <style name="AppThemeAmber" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeAmber" parent="AppThemeBase">
         <item name="colorPrimary">@color/amber</item>
         <item name="colorPrimaryDark">@color/amber_dark</item>
         <item name="colorAccent">@color/amber</item>
@@ -77,7 +84,7 @@
         <item name="emptyIcon">@drawable/empty_amber</item>
     </style>
 
-    <style name="AppThemeOrange" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppThemeOrange" parent="AppThemeBase">
         <item name="colorPrimary">@color/orange</item>
         <item name="colorPrimaryDark">@color/orange_dark</item>
         <item name="colorAccent">@color/orange</item>
