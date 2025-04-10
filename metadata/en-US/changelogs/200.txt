@@ -1,2 +1,3 @@
 * Port to Android 15
-* Mnimum supported Android version is now 4.4
+* Minimum supported Android version is now 4.4
+* Replace backup dialogs with Android native dialogs.
