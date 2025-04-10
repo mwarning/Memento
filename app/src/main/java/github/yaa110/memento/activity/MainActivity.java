@@ -1,7 +1,8 @@
 package github.yaa110.memento.activity;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -9,11 +10,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -22,17 +22,17 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Locale;
 
 import github.yaa110.memento.App;
 import github.yaa110.memento.R;
 import github.yaa110.memento.adapter.DrawerAdapter;
 import github.yaa110.memento.db.Controller;
-import github.yaa110.memento.dialog.ImportDialog;
-import github.yaa110.memento.dialog.SaveDialog;
 import github.yaa110.memento.fragment.MainFragment;
 import github.yaa110.memento.fragment.template.RecyclerFragment;
 import github.yaa110.memento.inner.Animator;
@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
     private MainFragment fragment;
     private Toolbar toolbar;
     private View selectionEdit;
-    private boolean permissionNotGranted = false;
-    private boolean checkForPermission = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,31 +76,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
                     .add(R.id.container, fragment)
                     .commit();
         }
-
-        if (checkForPermission) {
-            checkForPermission = false;
-            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                new MaterialDialog.Builder(this)
-                        .title(R.string.permission)
-                        .content(R.string.storage_permission)
-                        .positiveText(R.string.request)
-                        .negativeText(R.string.cancel)
-                        .negativeColor(ContextCompat.getColor(this, R.color.secondary_text))
-                        .onPositive((dialog, which) -> {
-                            dialog.dismiss();
-                            requestPermission();
-                        })
-                        .onNegative((dialog, which) -> {
-                            dialog.dismiss();
-                            displayPermissionError();
-                        })
-                        .show();
-            }
-        }
     }
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         if (drawerLayout.isDrawerOpen(drawerHolder)) {
             drawerLayout.closeDrawers();
             return;
@@ -160,34 +138,42 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
                     // wait for completion of drawer animation
                     sleep(500);
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            switch (type) {
-                                case Drawer.TYPE_ABOUT:
-                                    new MaterialDialog.Builder(MainActivity.this)
-                                            .title(R.string.app_name)
-                                            .content(R.string.about_desc)
-                                            .positiveText(R.string.ok)
-                                            .onPositive((dialog, which) -> dialog.dismiss())
-                                            .show();
-                                    break;
-                                case Drawer.TYPE_BACKUP:
-                                    backupData();
-                                    break;
-                                case Drawer.TYPE_RESTORE:
-                                    restoreData();
-                                    break;
-                                case Drawer.TYPE_SETTINGS:
-                                    // TODO implement settings
-                                    new MaterialDialog.Builder(MainActivity.this)
-                                            .title(R.string.settings)
-                                            .content(R.string.not_implemented)
-                                            .positiveText(R.string.ok)
-                                            .onPositive((dialog, which) -> dialog.dismiss())
-                                            .show();
-                                    break;
+                    runOnUiThread(() -> {
+                        switch (type) {
+                            case Drawer.TYPE_ABOUT:
+                                new MaterialDialog.Builder(MainActivity.this)
+                                        .title(R.string.app_name)
+                                        .content(R.string.about_desc)
+                                        .positiveText(R.string.ok)
+                                        .onPositive((dialog, which) -> dialog.dismiss())
+                                        .show();
+                                break;
+                            case Drawer.TYPE_BACKUP: {
+                                Calendar calendar = Calendar.getInstance(Locale.US);
+                                String filename = String.format(Locale.US, "memento-%d-%02d-%02d.%s", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), App.BACKUP_EXTENSION);
+                                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                intent.putExtra(Intent.EXTRA_TITLE, filename);
+                                intent.setType("*/*");
+                                exportFileLauncher.launch(intent);
+                                break;
                             }
+                            case Drawer.TYPE_RESTORE: {
+                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                intent.setType("*/*");
+                                importFileLauncher.launch(intent);
+                                break;
+                            }
+                            case Drawer.TYPE_SETTINGS:
+                                // TODO implement settings
+                                new MaterialDialog.Builder(MainActivity.this)
+                                        .title(R.string.settings)
+                                        .content(R.string.not_implemented)
+                                        .positiveText(R.string.ok)
+                                        .onPositive((dialog, which) -> dialog.dismiss())
+                                        .show();
+                                break;
                         }
                     });
 
@@ -197,6 +183,30 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
             }
         }.start();
     }
+
+    ActivityResultLauncher<Intent> exportFileLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    try {
+                        Intent intent = result.getData();
+                        saveBackupFile(intent.getData());
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+    ActivityResultLauncher<Intent> importFileLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    try {
+                        Intent intent = result.getData();
+                        readBackupFile(intent.getData());
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
 
     @Override
     public void onChangeSelection(boolean state) {
@@ -218,168 +228,31 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
         selectionEdit.setVisibility(state ? View.VISIBLE : View.GONE);
     }
 
-    private void restoreData() {
-        ImportDialog.newInstance(
-                R.string.restore,
-                new String[]{App.BACKUP_EXTENSION},
-                new ImportDialog.ImportListener() {
-                    @Override
-                    public void onSelect(final String path) {
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    readBackupFile(path);
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            fragment.loadItems();
-
-                                            Snackbar.make(fragment.fab != null ? fragment.fab : toolbar, R.string.data_restored, Snackbar.LENGTH_LONG).show();
-                                        }
-                                    });
-                                } catch (final Exception e) {
-                                    runOnUiThread(() -> new MaterialDialog.Builder(MainActivity.this)
-                                            .title(R.string.restore_error)
-                                            .positiveText(R.string.ok)
-                                            .content(e.getMessage())
-                                            .onPositive((dialog, which) -> dialog.dismiss())
-                                            .show());
-                                } finally {
-                                    interrupt();
-                                }
-                            }
-                        }.start();
-                    }
-
-                    @Override
-                    public void onError(String msg) {
-                        new MaterialDialog.Builder(MainActivity.this)
-                                .title(R.string.restore_error)
-                                .positiveText(R.string.ok)
-                                .content(msg)
-                                .onPositive((dialog, which) -> dialog.dismiss())
-                                .show();
-                    }
-                }
-        ).show(getSupportFragmentManager(), "");
-    }
-
-    private void backupData() {
-        SaveDialog.newInstance(
-                R.string.backup,
-                "memento",
-                App.BACKUP_EXTENSION,
-                new SaveDialog.SaveListener() {
-                    @Override
-                    public void onSelect(final String path) {
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    saveBackupFile(path);
-
-                                    runOnUiThread(() -> new MaterialDialog.Builder(MainActivity.this)
-                                            .title(R.string.backup)
-                                            .positiveText(R.string.ok)
-                                            .content(getString(R.string.backup_saved, path))
-                                            .onPositive((dialog, which) -> dialog.dismiss())
-                                            .show());
-                                } catch (final Exception e) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            new MaterialDialog.Builder(MainActivity.this)
-                                                    .title(R.string.backup_error)
-                                                    .positiveText(R.string.ok)
-                                                    .content(e.getMessage())
-                                                    .onPositive((dialog, which) -> dialog.dismiss())
-                                                    .show();
-                                        }
-                                    });
-                                } finally {
-                                    interrupt();
-                                }
-                            }
-                        }.start();
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-
-                    @Override
-                    public void onCancel() {
-
-                    }
-                }
-        ).show(getSupportFragmentManager(), "");
-    }
-
-    private void readBackupFile(String path) throws Exception {
-        DataInputStream dis = new DataInputStream(new FileInputStream(path));
-        byte[] backup_data = new byte[dis.available()];
-        dis.readFully(backup_data);
-        JSONArray json = new JSONArray(new String(backup_data));
-        dis.close();
+    private void readBackupFile(Uri uri) throws Exception {
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        for (int length; (length = inputStream.read(buffer)) != -1; ) {
+            result.write(buffer, 0, length);
+        }
+        JSONArray json = new JSONArray(result.toString("UTF-8"));
+        inputStream.close();
 
         Controller.instance.readBackup(json);
+
+        recreate();
     }
 
-    private void saveBackupFile(String path) throws Exception {
-        FileOutputStream fos = null;
+    private void saveBackupFile(Uri uri) throws Exception {
+        OutputStream fos = null;
         try {
-            fos = new FileOutputStream(path);
+            fos = getApplicationContext().getContentResolver().openOutputStream(uri);
             fos.write("[".getBytes(StandardCharsets.UTF_8));
             Controller.instance.writeBackup(fos);
             fos.write("]".getBytes(StandardCharsets.UTF_8));
             fos.flush();
         } finally {
             if (fos != null) fos.close();
-        }
-    }
-
-    private void requestPermission() {
-        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST);
-    }
-
-    private void displayPermissionError() {
-        new MaterialDialog.Builder(this)
-                .title(R.string.permission_error)
-                .content(R.string.permission_error_desc)
-                .negativeText(R.string.request)
-                .positiveText(R.string.continue_anyway)
-                .negativeColor(ContextCompat.getColor(this, R.color.secondary_text))
-                .onPositive((dialog, which) -> {
-                    dialog.dismiss();
-                    permissionNotGranted = false;
-                })
-                .onNegative((dialog, which) -> {
-                    dialog.dismiss();
-                    requestPermission();
-                })
-                .show();
-    }
-
-    @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-        if (permissionNotGranted) {
-            permissionNotGranted = false;
-            displayPermissionError();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[0])) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getApplicationContext(), R.string.permission_granted, Toast.LENGTH_SHORT).show();
-            } else {
-                permissionNotGranted = true;
-            }
         }
     }
 }

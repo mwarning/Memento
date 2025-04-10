@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -93,7 +94,7 @@ public class Controller {
      * @param fos an object of FileOutputStream
      * @throws Exception
      */
-    public void writeBackup(FileOutputStream fos) throws Exception {
+    public void writeBackup(OutputStream fos) throws Exception {
         SQLiteDatabase db = helper.getReadableDatabase();
 
         try {
