@@ -230,7 +230,7 @@ abstract class RecyclerFragment<T : DatabaseModel?, A : ModelAdapter<*, *>?> : F
     private fun toggleEmpty() {
         if (items!!.isEmpty()) {
             empty.visibility = View.VISIBLE
-            recyclerView.visibility = View.GONE
+            recyclerView.visibility = View.INVISIBLE
         } else {
             empty.visibility = View.GONE
             recyclerView.visibility = View.VISIBLE
