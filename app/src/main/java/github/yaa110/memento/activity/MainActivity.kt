@@ -35,14 +35,14 @@ import java.util.Calendar
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), RecyclerFragment.Callbacks {
-    lateinit var drawerHolder: View
-    var handler: Handler = Handler()
+    private lateinit var drawerHolder: View
     private lateinit var drawerLayout: DrawerLayout
-    private var exitStatus = false
-    var runnable: Runnable = Runnable { exitStatus = false }
     private lateinit var fragment: MainFragment
     private lateinit var toolbar: Toolbar
     private lateinit var selectionEdit: View
+    private var handler = Handler()
+    private var exitStatus = false
+    private var runnable = Runnable { exitStatus = false }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), RecyclerFragment.Callbacks {
 
     private fun setupDrawer() {
         // Set date in drawer
-        (findViewById<View>(R.id.drawer_date) as TextView).text = formatDate()
+        findViewById<TextView>(R.id.drawer_date).text = formatDate()
 
         drawerLayout = findViewById(R.id.drawer_layout)
         drawerHolder = findViewById(R.id.drawer_holder)
@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity(), RecyclerFragment.Callbacks {
     }
 
     private fun onClickDrawer(type: Int) {
-        drawerLayout!!.closeDrawers()
+        drawerLayout.closeDrawers()
 
         try {
             handler.removeCallbacks(runnable)
@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity(), RecyclerFragment.Callbacks {
 
                     runOnUiThread {
                         when (type) {
-                            Drawer.Companion.TYPE_ABOUT -> MaterialDialog.Builder(
+                            Drawer.TYPE_ABOUT -> MaterialDialog.Builder(
                                 this@MainActivity
                             )
                                 .title(R.string.app_name)
@@ -256,7 +256,6 @@ class MainActivity : AppCompatActivity(), RecyclerFragment.Callbacks {
         recreate()
     }
 
-    @Throws(Exception::class)
     private fun saveBackupFile(uri: Uri) {
         var fos: OutputStream? = null
         try {
