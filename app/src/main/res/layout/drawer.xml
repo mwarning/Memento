@@ -8,43 +8,40 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/app_name"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/main_color"
         android:layout_alignParentTop="true"
-        android:textColor="@color/white"
-        android:textSize="@dimen/large_text"
-        android:text="@string/app_name"
-        android:gravity="center_vertical|start"
-        android:paddingRight="16dp"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingStart="16dp"
-        android:paddingTop="24dp"
-        android:paddingBottom="3dp"
-        android:singleLine="true" />
-
-    <TextView
-        android:id="@+id/drawer_date"
-        android:layout_below="@+id/app_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/drawer_header"
         android:background="@color/main_color"
-        android:textColor="@color/transparent_white"
-        android:textSize="@dimen/small_text"
-        android:gravity="center_vertical|start"
-        android:paddingRight="16dp"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingStart="16dp"
-        android:paddingBottom="24dp"
-        android:singleLine="true" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="@dimen/large_text"
+            android:text="@string/app_name"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="3dp"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/drawer_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/transparent_white"
+            android:textSize="@dimen/small_text"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="24dp"
+            android:singleLine="true" />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/drawer_list"
-        android:layout_below="@+id/drawer_date"
+        android:layout_below="@+id/drawer_header"
         android:layout_above="@+id/settings_btn"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
