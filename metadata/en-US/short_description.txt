@@ -1,1 +1,1 @@
-A simple note taking app.
+Take notes
