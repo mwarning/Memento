@@ -1,0 +1,2 @@
+* fix app name and date layout padding
+* minor code cleanup
