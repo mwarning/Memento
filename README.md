@@ -10,7 +10,7 @@ A simple note taking app for Android.
 - Take drawing notes
 - Backup and restore notes
 
-[<img src="fdroid.png" alt="Get it on F-Droid" height="90">](https://f-droid.org/en/packages/github.yaa110.memento/)
+[<img src="fdroid.png" alt="Get it on F-Droid" height="90">](https://f-droid.org/en/packages/de.mwarning.memento/)
 
 ## Dependencies
 
